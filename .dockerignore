@@ -1,0 +1,14 @@
+# Ignorar arquivos e diretórios desnecessários para o Docker
+# Arquivos de cache e compilados do Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Ambientes virtuais
+venv/
+env/
+
+# Git e outros
+.git
+.gitignore

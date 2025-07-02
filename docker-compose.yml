@@ -1,0 +1,45 @@
+services:
+  api:
+    # Constrói a imagem a partir do Dockerfile na pasta atual.
+    build: .
+    # Mapeia a porta 3030 do contêiner para a porta 3030 da sua máquina.
+    container_name: api_container
+    ports:
+      - "3030:3030"
+    # Monta o diretório atual no contêiner para que as alterações no código
+    # sejam refletidas instantaneamente, funcionando com o --reload do uvicorn.
+    volumes:
+      - .:/app
+    # Define as variáveis de ambiente para a aplicação.
+    # A aplicação precisa ser configurada para ler a URL do banco de dados desta variável.
+    environment:
+      - DATABASE_URL=postgresql://app_user:app_password@db:5432/app_db
+    # Garante que o serviço 'db' seja iniciado antes do serviço 'api'.
+    depends_on:
+      - db
+    # O comando para iniciar a aplicação é o mesmo do seu Dockerfile.
+    # O Docker Compose pode sobrescrevê-lo aqui se necessário.
+    command: ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "3030", "--reload"]
+
+  db:
+    # Usa uma imagem oficial do PostgreSQL.
+    image: postgres:15-alpine
+    # Define as variáveis de ambiente para configurar o banco de dados.
+    # Estes valores devem corresponder aos usados na DATABASE_URL acima.
+    environment:
+      - POSTGRES_USER=app_user
+      - POSTGRES_PASSWORD=app_password
+      - POSTGRES_DB=app_db
+    # Monta um volume nomeado para persistir os dados do banco de dados.
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    # Expor a porta do Postgres para a máquina host é opcional,
+    # mas útil para conectar um cliente de banco de dados para depuração.
+    # ports:
+    #   - "5432:5432"
+
+# Define o volume nomeado que será usado pelo serviço 'db'.
+volumes:
+  postgres_data:
+
+
